@@ -72,7 +72,7 @@ export const createVoteIntent = createServerFn({ method: "POST" })
 
 /**
  * Vérifie un paiement côté serveur et, s'il est confirmé, valide les votes.
- * Réservé aux administrateurs tant qu'aucun prestataire n'est branché.
+ * Réservé aux administrateurs (validation manuelle de secours).
  */
 export const validatePayment = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
@@ -88,48 +88,24 @@ export const validatePayment = createServerFn({ method: "POST" })
     if (roleError) throw new Error(roleError.message);
     if (!isAdmin) throw new Error("Accès refusé");
 
-    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const { data: payment, error } = await supabaseAdmin
-      .from("payments")
-      .select("id, status, candidate_id, package_id, user_id, transaction_reference")
-      .eq("id", data.paymentId)
-      .single();
-    if (error) throw new Error(error.message);
-    if (payment.status === "paid") return { status: "paid" as const, message: "Paiement déjà validé." };
+    const { settlePaymentById } = await import("@/lib/payments/settle.server");
+    return settlePaymentById(
+      data.paymentId,
+      data.forceManual === true ? { forceManual: true } : {},
+    );
+  });
 
-    const provider = getPaymentProvider();
-    const verification = payment.transaction_reference
-      ? await provider.verifyPayment(payment.transaction_reference)
-      : { status: "pending" as const, message: "Aucune référence de transaction." };
-
-    const confirmed = verification.status === "paid" || data.forceManual === true;
-    if (!confirmed) return { status: verification.status, message: verification.message };
-
-    const { data: pack, error: packError } = await supabaseAdmin
-      .from("vote_packages")
-      .select("vote_quantity")
-      .eq("id", payment.package_id)
-      .single();
-    if (packError) throw new Error(packError.message);
-
-    const { error: voteError } = await supabaseAdmin.from("votes").insert({
-      candidate_id: payment.candidate_id,
-      user_id: payment.user_id,
-      payment_id: payment.id,
-      quantity: pack.vote_quantity,
-    });
-    if (voteError) throw new Error(voteError.message);
-
-    const { error: updateError } = await supabaseAdmin
-      .from("payments")
-      .update({ status: "paid" })
-      .eq("id", payment.id);
-    if (updateError) throw new Error(updateError.message);
-
-    return {
-      status: "paid" as const,
-      message: data.forceManual
-        ? "Paiement validé manuellement par un administrateur : votes crédités."
-        : "Paiement vérifié : votes crédités.",
-    };
+/**
+ * Confirmation après retour PayUnit : l'utilisateur connecté vérifie sa
+ * propre transaction et crédite les votes si PayUnit dit SUCCESS.
+ */
+export const confirmPayment = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((data: { transactionId: string }) => {
+    if (!data?.transactionId?.trim()) throw new Error("Référence de transaction manquante");
+    return { transactionId: data.transactionId.trim() };
+  })
+  .handler(async ({ data, context }) => {
+    const { settleOwnedPaymentByReference } = await import("@/lib/payments/settle.server");
+    return settleOwnedPaymentByReference(data.transactionId, context.userId);
   });

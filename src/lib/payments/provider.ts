@@ -1,14 +1,11 @@
 /**
  * Abstraction PaymentProvider.
  *
- * Le MVP ne simule AUCUN paiement réel. Le provider par défaut déclare
- * simplement qu'aucun prestataire n'est encore branché : le paiement reste
- * "pending" et aucun vote n'est créé tant qu'un paiement n'est pas vérifié
- * côté serveur.
- *
- * Pour brancher un prestataire compatible Cameroun plus tard, implémentez
- * cette interface et retournez-le depuis getPaymentProvider().
+ * Implémentez un prestataire (ex. PayUnit) via cette interface.
+ * getPaymentProvider() retourne PayUnit dès que les secrets env sont présents.
  */
+
+import { isPayunitConfigured, payunitProvider } from "./payunit";
 
 export type CheckoutInput = {
   reference: string;
@@ -57,10 +54,12 @@ const unconfiguredProvider: PaymentProvider = {
 };
 
 export function getPaymentProvider(): PaymentProvider {
+  if (isPayunitConfigured()) return payunitProvider;
   return unconfiguredProvider;
 }
 
+/** Référence sans caractères spéciaux (contrainte Orange Money / PayUnit). */
 export function buildReference() {
   const random = Math.random().toString(36).slice(2, 8).toUpperCase();
-  return `PICHNET-${Date.now().toString(36).toUpperCase()}-${random}`;
+  return `PICHNET${Date.now().toString(36).toUpperCase()}${random}`;
 }

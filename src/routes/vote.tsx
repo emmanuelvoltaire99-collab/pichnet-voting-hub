@@ -172,8 +172,8 @@ function VotePage() {
           <>
             <p className="mt-3 flex items-start gap-2 text-sm text-muted-foreground">
               <Info className="mt-0.5 h-4 w-4 shrink-0 text-accent" />
-              Aucun prestataire de paiement n'est encore connecté à la plateforme. Votre demande sera
-              enregistrée en attente et validée par l'organisation après vérification.
+              Vous serez redirigé vers PayUnit pour payer. Les votes seront crédités après
+              confirmation du paiement.
             </p>
             {error && <p className="mt-3 text-sm text-destructive">{error}</p>}
             <Button
@@ -183,7 +183,7 @@ function VotePage() {
               onClick={() => void onSubmit()}
             >
               {busy && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-              Valider ma demande de vote
+              Payer et voter
             </Button>
           </>
         )}
@@ -191,7 +191,8 @@ function VotePage() {
         {intent && (
           <div className="mt-4 rounded-xl border border-primary/40 bg-secondary p-4">
             <p className="flex items-center gap-2 font-medium">
-              <CheckCircle2 className="h-5 w-5 text-primary" /> Demande enregistrée
+              <CheckCircle2 className="h-5 w-5 text-primary" />
+              {intent.redirectUrl ? "Redirection vers PayUnit…" : "Demande enregistrée"}
             </p>
             <p className="mt-2 text-sm text-muted-foreground">{intent.message}</p>
             <p className="mt-3 text-sm">
@@ -199,12 +200,17 @@ function VotePage() {
               <span className="font-mono text-accent">{intent.payment.transaction_reference}</span>
             </p>
             <Badge className="mt-3 bg-accent text-accent-foreground hover:bg-accent">
-              Statut : en attente de paiement
+              Statut : {intent.checkoutStatus === "redirect" ? "paiement en cours" : "en attente"}
             </Badge>
             <p className="mt-3 text-xs text-muted-foreground">
               Les {intent.voteQuantity} votes seront crédités uniquement après vérification du
               paiement côté serveur.
             </p>
+            {intent.redirectUrl && (
+              <Button asChild className="mt-4 w-full" size="lg">
+                <a href={intent.redirectUrl}>Continuer vers PayUnit</a>
+              </Button>
+            )}
           </div>
         )}
       </section>

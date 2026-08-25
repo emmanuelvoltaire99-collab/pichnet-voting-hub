@@ -16,7 +16,7 @@ export function PichnetLogo({ className = "h-10" }: { className?: string }) {
 
   return (
     <img
-      src="/branding/pichnet-logo.png"
+      src="/branding/pichnet-logo.jpeg"
       alt="Logo PICHNET ONG"
       className={`${className} w-auto object-contain`}
       onError={() => setFailed(true)}

@@ -16,6 +16,8 @@ import { Route as MasterRouteImport } from './routes/master'
 import { Route as MissRouteImport } from './routes/miss'
 import { Route as VoteRouteImport } from './routes/vote'
 import { Route as CandidatIdRouteImport } from './routes/candidat.$id'
+import { Route as PaymentConfirmationRouteImport } from './routes/payment.confirmation'
+import { Route as ApiPayunitWebhookRouteImport } from './routes/api/payunit.webhook'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -52,6 +54,16 @@ const CandidatIdRoute = CandidatIdRouteImport.update({
   path: '/candidat/$id',
   getParentRoute: () => rootRouteImport,
 } as any)
+const PaymentConfirmationRoute = PaymentConfirmationRouteImport.update({
+  id: '/payment/confirmation',
+  path: '/payment/confirmation',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiPayunitWebhookRoute = ApiPayunitWebhookRouteImport.update({
+  id: '/api/payunit/webhook',
+  path: '/api/payunit/webhook',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -61,6 +73,8 @@ export interface FileRoutesByFullPath {
   '/miss': typeof MissRoute
   '/vote': typeof VoteRoute
   '/candidat/$id': typeof CandidatIdRoute
+  '/payment/confirmation': typeof PaymentConfirmationRoute
+  '/api/payunit/webhook': typeof ApiPayunitWebhookRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -70,6 +84,8 @@ export interface FileRoutesByTo {
   '/miss': typeof MissRoute
   '/vote': typeof VoteRoute
   '/candidat/$id': typeof CandidatIdRoute
+  '/payment/confirmation': typeof PaymentConfirmationRoute
+  '/api/payunit/webhook': typeof ApiPayunitWebhookRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -80,6 +96,8 @@ export interface FileRoutesById {
   '/miss': typeof MissRoute
   '/vote': typeof VoteRoute
   '/candidat/$id': typeof CandidatIdRoute
+  '/payment/confirmation': typeof PaymentConfirmationRoute
+  '/api/payunit/webhook': typeof ApiPayunitWebhookRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -91,6 +109,8 @@ export interface FileRouteTypes {
     | '/miss'
     | '/vote'
     | '/candidat/$id'
+    | '/payment/confirmation'
+    | '/api/payunit/webhook'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -100,6 +120,8 @@ export interface FileRouteTypes {
     | '/miss'
     | '/vote'
     | '/candidat/$id'
+    | '/payment/confirmation'
+    | '/api/payunit/webhook'
   id:
     | '__root__'
     | '/'
@@ -109,6 +131,8 @@ export interface FileRouteTypes {
     | '/miss'
     | '/vote'
     | '/candidat/$id'
+    | '/payment/confirmation'
+    | '/api/payunit/webhook'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -119,6 +143,8 @@ export interface RootRouteChildren {
   MissRoute: typeof MissRoute
   VoteRoute: typeof VoteRoute
   CandidatIdRoute: typeof CandidatIdRoute
+  PaymentConfirmationRoute: typeof PaymentConfirmationRoute
+  ApiPayunitWebhookRoute: typeof ApiPayunitWebhookRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -172,6 +198,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CandidatIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/payment/confirmation': {
+      id: '/payment/confirmation'
+      path: '/payment/confirmation'
+      fullPath: '/payment/confirmation'
+      preLoaderRoute: typeof PaymentConfirmationRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/payunit/webhook': {
+      id: '/api/payunit/webhook'
+      path: '/api/payunit/webhook'
+      fullPath: '/api/payunit/webhook'
+      preLoaderRoute: typeof ApiPayunitWebhookRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -183,6 +223,8 @@ const rootRouteChildren: RootRouteChildren = {
   MissRoute: MissRoute,
   VoteRoute: VoteRoute,
   CandidatIdRoute: CandidatIdRoute,
+  PaymentConfirmationRoute: PaymentConfirmationRoute,
+  ApiPayunitWebhookRoute: ApiPayunitWebhookRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
