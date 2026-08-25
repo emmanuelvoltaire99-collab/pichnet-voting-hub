@@ -2,21 +2,22 @@ import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { buildReference, getPaymentProvider } from "@/lib/payments/provider";
 
+const REFERENCE_PATTERN = /^PICHNET[A-Z0-9]{6,50}$/;
+
 /**
- * Crée une intention de paiement pour un pack de votes.
+ * Crée une intention de paiement pour un pack de votes — aucun compte requis.
  * Le frontend ne peut jamais écrire dans `votes` : seul le serveur le fait,
  * après vérification du paiement.
  */
 export const createVoteIntent = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
   .inputValidator((data: { candidateId: string; packageId: string }) => {
     if (!data?.candidateId || !data?.packageId) throw new Error("Requête invalide");
     return data;
   })
-  .handler(async ({ data, context }) => {
-    const { supabase, userId } = context;
+  .handler(async ({ data }) => {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
-    const { data: candidate, error: candidateError } = await supabase
+    const { data: candidate, error: candidateError } = await supabaseAdmin
       .from("candidates")
       .select("id, is_active")
       .eq("id", data.candidateId)
@@ -24,7 +25,7 @@ export const createVoteIntent = createServerFn({ method: "POST" })
     if (candidateError) throw new Error(candidateError.message);
     if (!candidate || !candidate.is_active) throw new Error("Candidat introuvable ou inactif");
 
-    const { data: pack, error: packError } = await supabase
+    const { data: pack, error: packError } = await supabaseAdmin
       .from("vote_packages")
       .select("id, price, currency, is_active, vote_quantity")
       .eq("id", data.packageId)
@@ -40,14 +41,12 @@ export const createVoteIntent = createServerFn({ method: "POST" })
       currency: pack.currency,
       candidateId: candidate.id,
       packageId: pack.id,
-      userId,
     });
 
-    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { data: payment, error } = await supabaseAdmin
       .from("payments")
       .insert({
-        user_id: userId,
+        user_id: null,
         candidate_id: candidate.id,
         package_id: pack.id,
         amount: pack.price,
@@ -68,6 +67,21 @@ export const createVoteIntent = createServerFn({ method: "POST" })
       message: checkout.message,
       providerLabel: provider.label,
     };
+  });
+
+/**
+ * Vérifie un paiement auprès de PayUnit via sa référence publique
+ * (retour navigateur ou polling) et crédite les votes une seule fois.
+ */
+export const checkVotePayment = createServerFn({ method: "POST" })
+  .inputValidator((data: { reference: string }) => {
+    const reference = (data?.reference ?? "").trim();
+    if (!REFERENCE_PATTERN.test(reference)) throw new Error("Référence invalide");
+    return { reference };
+  })
+  .handler(async ({ data }) => {
+    const { settlePaymentByReference } = await import("@/lib/payments/settle.server");
+    return settlePaymentByReference(data.reference);
   });
 
 /**
@@ -93,19 +107,4 @@ export const validatePayment = createServerFn({ method: "POST" })
       data.paymentId,
       data.forceManual === true ? { forceManual: true } : {},
     );
-  });
-
-/**
- * Confirmation après retour PayUnit : l'utilisateur connecté vérifie sa
- * propre transaction et crédite les votes si PayUnit dit SUCCESS.
- */
-export const confirmPayment = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
-  .inputValidator((data: { transactionId: string }) => {
-    if (!data?.transactionId?.trim()) throw new Error("Référence de transaction manquante");
-    return { transactionId: data.transactionId.trim() };
-  })
-  .handler(async ({ data, context }) => {
-    const { settleOwnedPaymentByReference } = await import("@/lib/payments/settle.server");
-    return settleOwnedPaymentByReference(data.transactionId, context.userId);
   });

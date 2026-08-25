@@ -112,19 +112,6 @@ export async function settlePaymentByReference(transactionId: string) {
     .eq("transaction_reference", transactionId)
     .maybeSingle();
   if (error) throw new Error(error.message);
-  if (!payment) throw new Error("Paiement introuvable");
-  return creditVotesIfPaid(supabaseAdmin, payment);
-}
-
-export async function settleOwnedPaymentByReference(transactionId: string, userId: string) {
-  const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-  const { data: payment, error } = await supabaseAdmin
-    .from("payments")
-    .select("id, status, candidate_id, package_id, user_id, transaction_reference")
-    .eq("transaction_reference", transactionId)
-    .maybeSingle();
-  if (error) throw new Error(error.message);
   if (!payment) throw new Error("Paiement introuvable pour cette référence");
-  if (payment.user_id !== userId) throw new Error("Ce paiement ne vous appartient pas");
   return creditVotesIfPaid(supabaseAdmin, payment);
 }

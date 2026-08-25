@@ -13,7 +13,6 @@ export type CheckoutInput = {
   currency: string;
   candidateId: string;
   packageId: string;
-  userId: string;
 };
 
 export type CheckoutResult = {

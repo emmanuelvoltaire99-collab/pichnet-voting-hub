@@ -10,7 +10,6 @@ import { CandidatePhoto } from "@/components/pichnet/candidate-photo";
 import { candidatesQuery, packagesQuery } from "@/lib/queries";
 import { candidateFullName, CATEGORY_LABEL, formatPrice } from "@/lib/pichnet";
 import { createVoteIntent } from "@/lib/voting.functions";
-import { useAuth } from "@/hooks/use-auth";
 
 export const Route = createFileRoute("/vote")({
   validateSearch: (search: Record<string, unknown>) => ({
@@ -36,7 +35,6 @@ type Intent = Awaited<ReturnType<typeof createVoteIntent>>;
 function VotePage() {
   const { candidate: candidateId } = Route.useSearch();
   const navigate = useNavigate({ from: "/vote" });
-  const { session, loading } = useAuth();
   const candidates = useQuery(candidatesQuery());
   const packages = useQuery(packagesQuery());
   const submit = useServerFn(createVoteIntent);
@@ -159,21 +157,12 @@ function VotePage() {
       <section className="mt-5 rounded-2xl border border-border bg-card p-5">
         <h2 className="text-lg font-semibold">3. Paiement</h2>
 
-        {!loading && !session && (
-          <div className="mt-4 rounded-xl border border-border p-4 text-sm">
-            <p className="text-muted-foreground">Connectez-vous pour enregistrer votre vote.</p>
-            <Button asChild className="mt-3 bg-primary hover:bg-primary/90">
-              <Link to="/auth">Se connecter</Link>
-            </Button>
-          </div>
-        )}
-
-        {session && !intent && (
+        {!intent && (
           <>
             <p className="mt-3 flex items-start gap-2 text-sm text-muted-foreground">
               <Info className="mt-0.5 h-4 w-4 shrink-0 text-accent" />
-              Vous serez redirigé vers PayUnit pour payer. Les votes seront crédités après
-              confirmation du paiement.
+              Aucun compte requis. Vous serez redirigé vers PayUnit pour payer ; les votes seront
+              crédités après confirmation du paiement.
             </p>
             {error && <p className="mt-3 text-sm text-destructive">{error}</p>}
             <Button

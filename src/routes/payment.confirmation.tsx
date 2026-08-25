@@ -3,8 +3,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { CheckCircle2, Loader2, XCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { confirmPayment } from "@/lib/voting.functions";
-import { useAuth } from "@/hooks/use-auth";
+import { checkVotePayment } from "@/lib/voting.functions";
 
 export const Route = createFileRoute("/payment/confirmation")({
   validateSearch: (search: Record<string, unknown>) => ({
@@ -27,26 +26,25 @@ export const Route = createFileRoute("/payment/confirmation")({
   component: PaymentConfirmationPage,
 });
 
-type ConfirmResult = Awaited<ReturnType<typeof confirmPayment>>;
+type ConfirmResult = Awaited<ReturnType<typeof checkVotePayment>>;
 
 function PaymentConfirmationPage() {
   const { transaction_id: transactionId } = Route.useSearch();
-  const { session, loading: authLoading } = useAuth();
-  const confirm = useServerFn(confirmPayment);
+  const check = useServerFn(checkVotePayment);
   const started = useRef(false);
   const [busy, setBusy] = useState(false);
   const [result, setResult] = useState<ConfirmResult | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (authLoading || !session || !transactionId || started.current) return;
+    if (!transactionId || started.current) return;
     started.current = true;
     setBusy(true);
-    void confirm({ data: { transactionId } })
+    void check({ data: { reference: transactionId } })
       .then((res) => setResult(res))
       .catch((err) => setError((err as Error).message))
       .finally(() => setBusy(false));
-  }, [authLoading, session, transactionId, confirm]);
+  }, [transactionId, check]);
 
   return (
     <div className="mx-auto max-w-lg px-4 py-16">
@@ -64,24 +62,6 @@ function PaymentConfirmationPage() {
             <Link to="/vote" search={{ candidate: undefined }}>
               Retour au vote
             </Link>
-          </Button>
-        </div>
-      )}
-
-      {transactionId && authLoading && (
-        <p className="mt-8 flex items-center gap-2 text-muted-foreground">
-          <Loader2 className="h-4 w-4 animate-spin" /> Chargement de la session…
-        </p>
-      )}
-
-      {transactionId && !authLoading && !session && (
-        <div className="mt-8 rounded-2xl border border-border bg-card p-5">
-          <p className="text-sm text-muted-foreground">
-            Connectez-vous pour confirmer le paiement{" "}
-            <span className="font-mono text-accent">{transactionId}</span>.
-          </p>
-          <Button asChild className="mt-4">
-            <Link to="/auth">Se connecter</Link>
           </Button>
         </div>
       )}
