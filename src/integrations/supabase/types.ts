@@ -68,9 +68,13 @@ export type Database = {
           id: string
           package_id: string
           payment_method: string | null
+          provider_payload: Json | null
+          provider_reference: string | null
           status: Database["public"]["Enums"]["payment_status"]
           transaction_reference: string | null
           user_id: string | null
+          voter_name: string | null
+          voter_phone: string | null
         }
         Insert: {
           amount: number
@@ -80,9 +84,13 @@ export type Database = {
           id?: string
           package_id: string
           payment_method?: string | null
+          provider_payload?: Json | null
+          provider_reference?: string | null
           status?: Database["public"]["Enums"]["payment_status"]
           transaction_reference?: string | null
           user_id?: string | null
+          voter_name?: string | null
+          voter_phone?: string | null
         }
         Update: {
           amount?: number
@@ -92,9 +100,13 @@ export type Database = {
           id?: string
           package_id?: string
           payment_method?: string | null
+          provider_payload?: Json | null
+          provider_reference?: string | null
           status?: Database["public"]["Enums"]["payment_status"]
           transaction_reference?: string | null
           user_id?: string | null
+          voter_name?: string | null
+          voter_phone?: string | null
         }
         Relationships: [
           {
