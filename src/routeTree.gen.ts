@@ -14,6 +14,7 @@ import { Route as AuthRouteImport } from './routes/auth'
 import { Route as ClassementRouteImport } from './routes/classement'
 import { Route as MasterRouteImport } from './routes/master'
 import { Route as MissRouteImport } from './routes/miss'
+import { Route as VoteRouteImport } from './routes/vote'
 import { Route as CandidatIdRouteImport } from './routes/candidat.$id'
 
 const IndexRoute = IndexRouteImport.update({
@@ -41,6 +42,11 @@ const MissRoute = MissRouteImport.update({
   path: '/miss',
   getParentRoute: () => rootRouteImport,
 } as any)
+const VoteRoute = VoteRouteImport.update({
+  id: '/vote',
+  path: '/vote',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const CandidatIdRoute = CandidatIdRouteImport.update({
   id: '/candidat/$id',
   path: '/candidat/$id',
@@ -53,6 +59,7 @@ export interface FileRoutesByFullPath {
   '/classement': typeof ClassementRoute
   '/master': typeof MasterRoute
   '/miss': typeof MissRoute
+  '/vote': typeof VoteRoute
   '/candidat/$id': typeof CandidatIdRoute
 }
 export interface FileRoutesByTo {
@@ -61,6 +68,7 @@ export interface FileRoutesByTo {
   '/classement': typeof ClassementRoute
   '/master': typeof MasterRoute
   '/miss': typeof MissRoute
+  '/vote': typeof VoteRoute
   '/candidat/$id': typeof CandidatIdRoute
 }
 export interface FileRoutesById {
@@ -70,14 +78,28 @@ export interface FileRoutesById {
   '/classement': typeof ClassementRoute
   '/master': typeof MasterRoute
   '/miss': typeof MissRoute
+  '/vote': typeof VoteRoute
   '/candidat/$id': typeof CandidatIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
-    '/' | '/auth' | '/classement' | '/master' | '/miss' | '/candidat/$id'
+    | '/'
+    | '/auth'
+    | '/classement'
+    | '/master'
+    | '/miss'
+    | '/vote'
+    | '/candidat/$id'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/auth' | '/classement' | '/master' | '/miss' | '/candidat/$id'
+  to:
+    | '/'
+    | '/auth'
+    | '/classement'
+    | '/master'
+    | '/miss'
+    | '/vote'
+    | '/candidat/$id'
   id:
     | '__root__'
     | '/'
@@ -85,6 +107,7 @@ export interface FileRouteTypes {
     | '/classement'
     | '/master'
     | '/miss'
+    | '/vote'
     | '/candidat/$id'
   fileRoutesById: FileRoutesById
 }
@@ -94,6 +117,7 @@ export interface RootRouteChildren {
   ClassementRoute: typeof ClassementRoute
   MasterRoute: typeof MasterRoute
   MissRoute: typeof MissRoute
+  VoteRoute: typeof VoteRoute
   CandidatIdRoute: typeof CandidatIdRoute
 }
 
@@ -134,6 +158,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof MissRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/vote': {
+      id: '/vote'
+      path: '/vote'
+      fullPath: '/vote'
+      preLoaderRoute: typeof VoteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/candidat/$id': {
       id: '/candidat/$id'
       path: '/candidat/$id'
@@ -150,6 +181,7 @@ const rootRouteChildren: RootRouteChildren = {
   ClassementRoute: ClassementRoute,
   MasterRoute: MasterRoute,
   MissRoute: MissRoute,
+  VoteRoute: VoteRoute,
   CandidatIdRoute: CandidatIdRoute,
 }
 export const routeTree = rootRouteImport
