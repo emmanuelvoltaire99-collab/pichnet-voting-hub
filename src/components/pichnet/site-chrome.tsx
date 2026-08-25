@@ -10,12 +10,11 @@ const NAV = [
   { to: "/miss", label: "Miss" },
   { to: "/master", label: "Master" },
   { to: "/classement", label: "Classement" },
-  { to: "/vote", label: "Voter" },
 ] as const;
 
 export function SiteHeader() {
   const [open, setOpen] = useState(false);
-  const { user, isAdmin, signOut } = useAuth();
+  const { user, signOut } = useAuth();
 
   return (
     <header className="sticky top-0 z-50 border-b border-border bg-background/90 backdrop-blur">
@@ -40,14 +39,15 @@ export function SiteHeader() {
               {item.label}
             </Link>
           ))}
-          {isAdmin && (
-            <Link
-              to="/admin"
-              className="rounded-md px-3 py-2 text-sm font-medium text-muted-foreground hover:text-foreground"
-            >
-              Admin
-            </Link>
-          )}
+          <Link
+            to="/vote"
+            search={{ candidate: undefined }}
+            activeProps={{ className: "text-accent" }}
+            inactiveProps={{ className: "text-muted-foreground" }}
+            className="rounded-md px-3 py-2 text-sm font-medium transition-colors hover:text-foreground"
+          >
+            Voter
+          </Link>
           {user ? (
             <Button variant="ghost" size="sm" onClick={() => void signOut()}>
               Déconnexion
@@ -70,7 +70,7 @@ export function SiteHeader() {
 
       {open && (
         <nav className="border-t border-border bg-background px-4 pb-4 md:hidden">
-          {[...NAV, ...(isAdmin ? [{ to: "/admin", label: "Admin" } as const] : [])].map((item) => (
+          {NAV.map((item) => (
             <Link
               key={item.to}
               to={item.to}
@@ -80,6 +80,14 @@ export function SiteHeader() {
               {item.label}
             </Link>
           ))}
+          <Link
+            to="/vote"
+            search={{ candidate: undefined }}
+            onClick={() => setOpen(false)}
+            className="block border-b border-border/60 py-3 text-sm font-medium text-muted-foreground"
+          >
+            Voter
+          </Link>
           {user ? (
             <Button variant="ghost" className="mt-3 w-full" onClick={() => void signOut()}>
               Déconnexion

@@ -2,7 +2,6 @@ import { useEffect, useState } from "react";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
-import { lovable } from "@/integrations/lovable/index";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -33,7 +32,7 @@ function AuthPage() {
   const [busy, setBusy] = useState(false);
 
   useEffect(() => {
-    if (session) void navigate({ to: "/vote" });
+    if (session) void navigate({ to: "/vote", search: { candidate: undefined } });
   }, [session, navigate]);
 
   async function onSubmit(e: React.FormEvent) {
@@ -64,11 +63,12 @@ function AuthPage() {
   }
 
   async function onGoogle() {
-    const result = await lovable.auth.signInWithOAuth("google", {
-      redirect_uri: window.location.origin,
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: "google",
+      options: { redirectTo: `${window.location.origin}/auth` },
     });
-    if (result.error) {
-      toast.error("Connexion Google impossible", { description: String(result.error) });
+    if (error) {
+      toast.error("Connexion Google impossible", { description: error.message });
     }
   }
 

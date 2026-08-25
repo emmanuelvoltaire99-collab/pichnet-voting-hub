@@ -35,7 +35,7 @@ type Intent = Awaited<ReturnType<typeof createVoteIntent>>;
 
 function VotePage() {
   const { candidate: candidateId } = Route.useSearch();
-  const navigate = useNavigate();
+  const navigate = useNavigate({ from: "/vote" });
   const { session, loading } = useAuth();
   const candidates = useQuery(candidatesQuery());
   const packages = useQuery(packagesQuery());
@@ -93,7 +93,7 @@ function VotePage() {
               variant="ghost"
               size="sm"
               className="ml-auto"
-              onClick={() => void navigate({ to: "/vote", search: {} })}
+              onClick={() => void navigate({ to: ".", search: { candidate: undefined } })}
             >
               Changer
             </Button>
