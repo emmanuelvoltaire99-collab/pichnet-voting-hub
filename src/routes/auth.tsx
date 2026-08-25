@@ -11,7 +11,7 @@ import { PichnetLogo } from "@/components/pichnet/logo";
 export const Route = createFileRoute("/auth")({
   head: () => ({
     meta: [
-      { title: "Connexion — MISS & MASTER PICHNET 2026" },
+      { title: "Connexion — MISS & MISTER PICHNET 2026" },
       {
         name: "description",
         content: "Connectez-vous pour voter et suivre vos paiements sur la plateforme PICHNET 2026.",

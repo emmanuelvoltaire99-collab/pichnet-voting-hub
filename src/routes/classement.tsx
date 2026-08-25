@@ -12,10 +12,10 @@ export const Route = createFileRoute("/classement")({
       {
         name: "description",
         content:
-          "Classement en direct des candidates Miss et candidats Master PICHNET 2026, basé uniquement sur les votes validés.",
+          "Classement en direct des candidates Miss et candidats Mister PICHNET 2026, basé uniquement sur les votes validés.",
       },
       { property: "og:title", content: "Classement des votes — PICHNET 2026" },
-      { property: "og:description", content: "Podiums Miss et Master basés sur les votes validés." },
+      { property: "og:description", content: "Podiums Miss et Mister basés sur les votes validés." },
     ],
   }),
   component: Ranking,
@@ -92,7 +92,7 @@ function Ranking() {
       </header>
       <div className="grid gap-6 md:grid-cols-2">
         <RankingColumn category="miss" title="MISS" />
-        <RankingColumn category="master" title="MASTER" />
+        <RankingColumn category="master" title="MISTER" />
       </div>
     </div>
   );

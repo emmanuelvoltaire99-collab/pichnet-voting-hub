@@ -3,7 +3,7 @@ export type Category = (typeof CATEGORIES)[number];
 
 export const CATEGORY_LABEL: Record<Category, string> = {
   miss: "Miss",
-  master: "Master",
+  master: "Mister",
 };
 
 export function formatPrice(amount: number, currency = "XAF") {

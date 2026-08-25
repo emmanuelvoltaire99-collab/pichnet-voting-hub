@@ -18,7 +18,7 @@ export const Route = createFileRoute("/vote")({
   }),
   head: () => ({
     meta: [
-      { title: "Voter — MISS & MASTER PICHNET 2026" },
+      { title: "Voter — MISS & MISTER PICHNET 2026" },
       {
         name: "description",
         content:

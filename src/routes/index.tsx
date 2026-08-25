@@ -10,13 +10,13 @@ import { formatPrice } from "@/lib/pichnet";
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "MISS & MASTER PICHNET 2026 — Site officiel" },
+      { title: "MISS & MISTER PICHNET 2026 — Site officiel" },
       {
         name: "description",
         content:
-          "Découvrez les candidates Miss et les candidats Master PICHNET 2026, consultez leurs profils et soutenez-les par un vote.",
+          "Découvrez les candidates Miss et les candidats Mister PICHNET 2026, consultez leurs profils et soutenez-les par un vote.",
       },
-      { property: "og:title", content: "MISS & MASTER PICHNET 2026 — Site officiel" },
+      { property: "og:title", content: "MISS & MISTER PICHNET 2026 — Site officiel" },
       {
         property: "og:description",
         content: "La beauté, l'élégance et la culture camerounaise. Votez pour votre favori.",
@@ -40,7 +40,7 @@ function Home() {
             Édition officielle 2026
           </p>
           <h1 className="mt-4 text-4xl font-bold leading-tight sm:text-6xl">
-            MISS &amp; MASTER <span className="text-gold-gradient">PICHNET 2026</span>
+            MISS &amp; MISTER <span className="text-gold-gradient">PICHNET 2026</span>
           </h1>
           <p className="mx-auto mt-4 max-w-xl text-base text-muted-foreground sm:text-lg">
             La beauté, l'élégance et la culture camerounaise.
@@ -66,7 +66,7 @@ function Home() {
       <section className="mx-auto grid max-w-6xl gap-4 px-4 py-10 sm:grid-cols-3">
         {[
           { icon: Crown, title: "Miss", text: "Les candidates en lice", to: "/miss" as const },
-          { icon: Users, title: "Master", text: "Les candidats en lice", to: "/master" as const },
+          { icon: Users, title: "Mister", text: "Les candidats en lice", to: "/master" as const },
           { icon: Trophy, title: "Classement", text: "Votes validés en direct", to: "/classement" as const },
         ].map(({ icon: Icon, title, text, to }) => (
           <Link
