@@ -10,33 +10,53 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as MasterRouteImport } from './routes/master'
+import { Route as MissRouteImport } from './routes/miss'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const MasterRoute = MasterRouteImport.update({
+  id: '/master',
+  path: '/master',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MissRoute = MissRouteImport.update({
+  id: '/miss',
+  path: '/miss',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/master': typeof MasterRoute
+  '/miss': typeof MissRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/master': typeof MasterRoute
+  '/miss': typeof MissRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/master': typeof MasterRoute
+  '/miss': typeof MissRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths: '/' | '/master' | '/miss'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to: '/' | '/master' | '/miss'
+  id: '__root__' | '/' | '/master' | '/miss'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  MasterRoute: typeof MasterRoute
+  MissRoute: typeof MissRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -48,11 +68,27 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/master': {
+      id: '/master'
+      path: '/master'
+      fullPath: '/master'
+      preLoaderRoute: typeof MasterRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/miss': {
+      id: '/miss'
+      path: '/miss'
+      fullPath: '/miss'
+      preLoaderRoute: typeof MissRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  MasterRoute: MasterRoute,
+  MissRoute: MissRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
