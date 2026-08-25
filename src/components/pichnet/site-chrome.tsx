@@ -8,7 +8,7 @@ import { useAuth } from "@/hooks/use-auth";
 const NAV = [
   { to: "/", label: "Accueil" },
   { to: "/miss", label: "Miss" },
-  { to: "/master", label: "Master" },
+  { to: "/master", label: "Mister" },
   { to: "/classement", label: "Classement" },
 ] as const;
 
@@ -22,7 +22,7 @@ export function SiteHeader() {
         <Link to="/" className="flex items-center gap-3" onClick={() => setOpen(false)}>
           <PichnetLogo className="h-9" />
           <span className="hidden text-xs font-medium tracking-[0.25em] text-muted-foreground sm:block">
-            MISS &amp; MASTER 2026
+            MISS &amp; MISTER 2026
           </span>
         </Link>
 
@@ -112,7 +112,7 @@ export function SiteFooter() {
         <div className="flex items-center gap-3">
           <PichnetLogo className="h-8" />
           <p>
-            MISS &amp; MASTER PICHNET 2026
+            MISS &amp; MISTER PICHNET 2026
             <br />
             Au-delà de la beauté : une jeunesse qui inspire.
           </p>

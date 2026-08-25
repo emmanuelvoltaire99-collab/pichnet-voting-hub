@@ -14,7 +14,7 @@ export const Route = createFileRoute("/candidat/$id")({
       { title: "Profil candidat — PICHNET 2026" },
       {
         name: "description",
-        content: "Profil complet d'un candidat MISS & MASTER PICHNET 2026 et soutien par le vote.",
+        content: "Profil complet d'un candidat MISS & MISTER PICHNET 2026 et soutien par le vote.",
       },
       { property: "og:title", content: "Profil candidat — PICHNET 2026" },
       { property: "og:description", content: "Découvrez le profil du candidat et votez." },
