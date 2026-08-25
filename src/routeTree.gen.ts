@@ -10,33 +10,115 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AuthRouteImport } from './routes/auth'
+import { Route as ClassementRouteImport } from './routes/classement'
+import { Route as MasterRouteImport } from './routes/master'
+import { Route as MissRouteImport } from './routes/miss'
+import { Route as VoteRouteImport } from './routes/vote'
+import { Route as CandidatIdRouteImport } from './routes/candidat.$id'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthRoute = AuthRouteImport.update({
+  id: '/auth',
+  path: '/auth',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ClassementRoute = ClassementRouteImport.update({
+  id: '/classement',
+  path: '/classement',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MasterRoute = MasterRouteImport.update({
+  id: '/master',
+  path: '/master',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MissRoute = MissRouteImport.update({
+  id: '/miss',
+  path: '/miss',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const VoteRoute = VoteRouteImport.update({
+  id: '/vote',
+  path: '/vote',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CandidatIdRoute = CandidatIdRouteImport.update({
+  id: '/candidat/$id',
+  path: '/candidat/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/auth': typeof AuthRoute
+  '/classement': typeof ClassementRoute
+  '/master': typeof MasterRoute
+  '/miss': typeof MissRoute
+  '/vote': typeof VoteRoute
+  '/candidat/$id': typeof CandidatIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/auth': typeof AuthRoute
+  '/classement': typeof ClassementRoute
+  '/master': typeof MasterRoute
+  '/miss': typeof MissRoute
+  '/vote': typeof VoteRoute
+  '/candidat/$id': typeof CandidatIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/auth': typeof AuthRoute
+  '/classement': typeof ClassementRoute
+  '/master': typeof MasterRoute
+  '/miss': typeof MissRoute
+  '/vote': typeof VoteRoute
+  '/candidat/$id': typeof CandidatIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths:
+    | '/'
+    | '/auth'
+    | '/classement'
+    | '/master'
+    | '/miss'
+    | '/vote'
+    | '/candidat/$id'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to:
+    | '/'
+    | '/auth'
+    | '/classement'
+    | '/master'
+    | '/miss'
+    | '/vote'
+    | '/candidat/$id'
+  id:
+    | '__root__'
+    | '/'
+    | '/auth'
+    | '/classement'
+    | '/master'
+    | '/miss'
+    | '/vote'
+    | '/candidat/$id'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AuthRoute: typeof AuthRoute
+  ClassementRoute: typeof ClassementRoute
+  MasterRoute: typeof MasterRoute
+  MissRoute: typeof MissRoute
+  VoteRoute: typeof VoteRoute
+  CandidatIdRoute: typeof CandidatIdRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -48,11 +130,59 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/auth': {
+      id: '/auth'
+      path: '/auth'
+      fullPath: '/auth'
+      preLoaderRoute: typeof AuthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/classement': {
+      id: '/classement'
+      path: '/classement'
+      fullPath: '/classement'
+      preLoaderRoute: typeof ClassementRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/master': {
+      id: '/master'
+      path: '/master'
+      fullPath: '/master'
+      preLoaderRoute: typeof MasterRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/miss': {
+      id: '/miss'
+      path: '/miss'
+      fullPath: '/miss'
+      preLoaderRoute: typeof MissRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/vote': {
+      id: '/vote'
+      path: '/vote'
+      fullPath: '/vote'
+      preLoaderRoute: typeof VoteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/candidat/$id': {
+      id: '/candidat/$id'
+      path: '/candidat/$id'
+      fullPath: '/candidat/$id'
+      preLoaderRoute: typeof CandidatIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AuthRoute: AuthRoute,
+  ClassementRoute: ClassementRoute,
+  MasterRoute: MasterRoute,
+  MissRoute: MissRoute,
+  VoteRoute: VoteRoute,
+  CandidatIdRoute: CandidatIdRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
