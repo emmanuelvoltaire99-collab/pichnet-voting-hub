@@ -47,7 +47,7 @@ function Home() {
           </p>
           <div className="mt-8 flex flex-col justify-center gap-3 sm:flex-row">
             <Button asChild size="lg" className="bg-primary hover:bg-primary/90">
-              <Link to="/vote">
+              <Link to="/vote" search={{ candidate: undefined }}>
                 <Heart className="mr-2 h-5 w-5" /> VOTER MAINTENANT
               </Link>
             </Button>

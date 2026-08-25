@@ -6,11 +6,11 @@ import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/use-auth";
 
 const NAV = [
-  { to: "/", label: "Accueil" },
-  { to: "/miss", label: "Miss" },
-  { to: "/master", label: "Master" },
-  { to: "/classement", label: "Classement" },
-  { to: "/vote", label: "Voter" },
+  { to: "/", label: "Accueil", search: undefined },
+  { to: "/miss", label: "Miss", search: undefined },
+  { to: "/master", label: "Master", search: undefined },
+  { to: "/classement", label: "Classement", search: undefined },
+  { to: "/vote", label: "Voter", search: { candidate: undefined } },
 ] as const;
 
 export function SiteHeader() {
@@ -32,6 +32,7 @@ export function SiteHeader() {
             <Link
               key={item.to}
               to={item.to}
+              search={item.search}
               activeOptions={{ exact: item.to === "/" }}
               activeProps={{ className: "text-accent" }}
               inactiveProps={{ className: "text-muted-foreground" }}
@@ -70,10 +71,11 @@ export function SiteHeader() {
 
       {open && (
         <nav className="border-t border-border bg-background px-4 pb-4 md:hidden">
-          {[...NAV, ...(isAdmin ? [{ to: "/admin", label: "Admin" } as const] : [])].map((item) => (
+          {[...NAV, ...(isAdmin ? [{ to: "/admin", label: "Admin", search: undefined } as const] : [])].map((item) => (
             <Link
               key={item.to}
               to={item.to}
+              search={item.search}
               onClick={() => setOpen(false)}
               className="block border-b border-border/60 py-3 text-sm font-medium text-muted-foreground"
             >
