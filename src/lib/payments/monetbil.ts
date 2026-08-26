@@ -25,7 +25,7 @@ export function verifyMonetbilSignature(params: MonetbilNotification) {
   const secret = readConfig()?.serviceSecret;
   if (!secret) return false;
 
-  const provided = params.sign?.trim().toLowerCase();
+  const provided = params['sign']?.trim().toLowerCase();
   if (!provided || !/^[a-f0-9]{32}$/.test(provided)) return false;
 
   const values = Object.entries(params)

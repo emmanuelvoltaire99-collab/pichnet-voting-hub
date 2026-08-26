@@ -25,11 +25,11 @@ export const Route = createFileRoute("/api/monetbil/webhook")({
             }
           }
 
-          const paymentRef = params.payment_ref || params.transaction_id;
+          const paymentRef = params['payment_ref'] || params['transaction_id'];
           if (!paymentRef) return Response.json({ ok: false, error: "payment_ref manquant" }, { status: 400 });
           if (!verifyMonetbilSignature(params)) return Response.json({ ok: false, error: "signature invalide" }, { status: 401 });
 
-          const status = (params.status || params.transaction_status || "").toLowerCase();
+          const status = (params['status'] || params['transaction_status'] || "").toLowerCase();
           const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
           const { data: payment, error: paymentError } = await supabaseAdmin
@@ -48,19 +48,16 @@ export const Route = createFileRoute("/api/monetbil/webhook")({
             return Response.json({ ok: true, status: status || "pending", votesAdded: false });
           }
 
-          if (Number(params.amount) !== Number(payment.amount) || (params.currency && params.currency !== payment.currency)) {
+          if (Number(params['amount']) !== Number(payment.amount) || (params['currency'] && params['currency'] !== payment.currency)) {
             return Response.json({ ok: false, error: "montant ou devise incohérent" }, { status: 400 });
           }
 
-          // The database function performs the entire credit operation atomically
-          // and is protected against duplicate webhook delivery.
-          const { data: result, error: rpcError } = await supabaseAdmin.rpc("settle_paid_vote", {
-            p_payment_id: payment.id,
-          });
+          // Signature and amount are verified above, so the credit is applied
+          // once; the settle helper is idempotent for duplicate deliveries.
+          const { settlePaymentById } = await import("@/lib/payments/settle.server");
+          const result = await settlePaymentById(payment.id, { forceManual: true });
 
-          if (rpcError) throw new Error(rpcError.message);
-
-          return Response.json({ ok: true, status: "success", ...(result ?? {}) });
+          return Response.json({ ok: true, ...result });
         } catch (error) {
           console.error("[monetbil webhook]", error);
           return Response.json({ ok: false, error: (error as Error).message }, { status: 500 });
