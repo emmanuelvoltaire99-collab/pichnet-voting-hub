@@ -1,11 +1,9 @@
 /**
  * Abstraction PaymentProvider.
- *
- * Implémentez un prestataire (ex. PayUnit) via cette interface.
- * getPaymentProvider() retourne PayUnit dès que les secrets env sont présents.
+ * L'implémentation active est Monetbil.
  */
 
-import { isPayunitConfigured, payunitProvider } from "./payunit";
+import { isMonetbilConfigured, monetbilProvider } from "./monetbil";
 
 export type CheckoutInput = {
   reference: string;
@@ -41,23 +39,22 @@ const unconfiguredProvider: PaymentProvider = {
     return {
       status: "unavailable",
       message:
-        "Aucun prestataire de paiement n'est encore connecté. Votre demande de vote est enregistrée et sera validée après le branchement du paiement.",
+        "Aucun prestataire de paiement n'est encore connecté. Configurez Monetbil côté serveur.",
     };
   },
   async verifyPayment() {
     return {
       status: "pending",
-      message: "Vérification impossible : aucun prestataire de paiement connecté.",
+      message: "Vérification en attente de la notification Monetbil.",
     };
   },
 };
 
 export function getPaymentProvider(): PaymentProvider {
-  if (isPayunitConfigured()) return payunitProvider;
+  if (isMonetbilConfigured()) return monetbilProvider;
   return unconfiguredProvider;
 }
 
-/** Référence sans caractères spéciaux (contrainte Orange Money / PayUnit). */
 export function buildReference() {
   const random = Math.random().toString(36).slice(2, 8).toUpperCase();
   return `PICHNET${Date.now().toString(36).toUpperCase()}${random}`;
