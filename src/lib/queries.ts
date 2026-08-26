@@ -26,7 +26,8 @@ export type VotePackage = {
   is_active: boolean;
 };
 
-const toDbCategory = (category: Category) => category.toLowerCase();
+const toDbCategory = (category: Category): "miss" | "master" =>
+  category === "MASTER" ? "master" : "miss";
 
 const normalize = (rows: unknown[]): Candidate[] =>
   (rows as Candidate[]).map((row) => ({

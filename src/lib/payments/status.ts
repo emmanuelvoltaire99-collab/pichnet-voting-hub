@@ -1,38 +1,29 @@
-/** Mapping statut paiement DB (AI Studio) ↔ logique app */
-export type DbPaymentStatus = "PENDING" | "SUCCESS" | "FAILED" | "CANCELLED";
-export type AppPaymentStatus = "pending" | "paid" | "failed" | "cancelled";
+/** Mapping statut paiement DB ↔ logique app (l'enum DB est en minuscules) */
+export type DbPaymentStatus = "pending" | "paid" | "failed" | "cancelled";
+export type AppPaymentStatus = DbPaymentStatus;
 
 export function toDbPaymentStatus(status: AppPaymentStatus): DbPaymentStatus {
-  switch (status) {
-    case "paid":
-      return "SUCCESS";
-    case "failed":
-      return "FAILED";
-    case "cancelled":
-      return "CANCELLED";
-    default:
-      return "PENDING";
-  }
+  return status;
 }
 
 export function fromDbPaymentStatus(status: string): AppPaymentStatus {
-  switch (status.toUpperCase()) {
-    case "SUCCESS":
-    case "PAID":
+  switch (status.toLowerCase()) {
+    case "success":
+    case "paid":
       return "paid";
-    case "FAILED":
+    case "failed":
       return "failed";
-    case "CANCELLED":
-    case "CANCELED":
+    case "cancelled":
+    case "canceled":
       return "cancelled";
     default:
       return "pending";
   }
 }
 
-/** Catégories DB = MISS | MASTER */
-export type DbCategory = "MISS" | "MASTER";
+/** Catégories DB = miss | master */
+export type DbCategory = "miss" | "master";
 
 export function toDbCategory(category: string): DbCategory {
-  return category.toUpperCase() === "MASTER" ? "MASTER" : "MISS";
+  return category.toLowerCase() === "master" ? "master" : "miss";
 }

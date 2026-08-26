@@ -25,11 +25,11 @@ export const Route = createFileRoute("/api/monetbil/webhook")({
             }
           }
 
-          const paymentRef = params.payment_ref || params.transaction_id;
+          const paymentRef = params['payment_ref'] || params['transaction_id'];
           if (!paymentRef) return Response.json({ ok: false, error: "payment_ref manquant" }, { status: 400 });
           if (!verifyMonetbilSignature(params)) return Response.json({ ok: false, error: "signature invalide" }, { status: 401 });
 
-          const status = (params.status || params.transaction_status || "").toLowerCase();
+          const status = (params['status'] || params['transaction_status'] || "").toLowerCase();
           const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
           const { data: payment, error: paymentError } = await supabaseAdmin
@@ -48,7 +48,7 @@ export const Route = createFileRoute("/api/monetbil/webhook")({
             return Response.json({ ok: true, status: status || "pending", votesAdded: false });
           }
 
-          if (Number(params.amount) !== Number(payment.amount) || (params.currency && params.currency !== payment.currency)) {
+          if (Number(params['amount']) !== Number(payment.amount) || (params['currency'] && params['currency'] !== payment.currency)) {
             return Response.json({ ok: false, error: "montant ou devise incohérent" }, { status: 400 });
           }
 

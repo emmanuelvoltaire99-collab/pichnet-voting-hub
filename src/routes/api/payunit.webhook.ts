@@ -25,12 +25,12 @@ export const Route = createFileRoute("/api/payunit/webhook")({
             }
           }
 
-          const paymentRef = params.payment_ref || params.transaction_id;
+          const paymentRef = params['payment_ref'] || params['transaction_id'];
           if (!paymentRef || !verifyMonetbilSignature(params)) {
             return Response.json({ ok: false, error: "notification Monetbil invalide" }, { status: 400 });
           }
 
-          const status = (params.status || params.transaction_status || "").toLowerCase();
+          const status = (params['status'] || params['transaction_status'] || "").toLowerCase();
           if (status !== "success") {
             return Response.json({ ok: true, status: status || "pending", votesAdded: false });
           }
@@ -44,7 +44,7 @@ export const Route = createFileRoute("/api/payunit/webhook")({
           if (error) throw new Error(error.message);
           if (!payment) return Response.json({ ok: false, error: "paiement introuvable" }, { status: 404 });
 
-          if (Number(params.amount) !== Number(payment.amount) || (params.currency && params.currency !== payment.currency)) {
+          if (Number(params['amount']) !== Number(payment.amount) || (params['currency'] && params['currency'] !== payment.currency)) {
             return Response.json({ ok: false, error: "montant ou devise incohérent" }, { status: 400 });
           }
 
