@@ -57,7 +57,7 @@ export const Route = createFileRoute("/api/monetbil/webhook")({
           const { settlePaymentById } = await import("@/lib/payments/settle.server");
           const result = await settlePaymentById(payment.id, { forceManual: true });
 
-          return Response.json({ ok: true, status: "success", ...result });
+          return Response.json({ ok: true, ...result });
         } catch (error) {
           console.error("[monetbil webhook]", error);
           return Response.json({ ok: false, error: (error as Error).message }, { status: 500 });

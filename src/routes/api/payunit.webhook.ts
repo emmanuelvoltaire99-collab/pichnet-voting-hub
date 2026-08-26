@@ -51,7 +51,7 @@ export const Route = createFileRoute("/api/payunit/webhook")({
           const { settlePaymentById } = await import("@/lib/payments/settle.server");
           const result = await settlePaymentById(payment.id, { forceManual: true });
 
-          return Response.json({ ok: true, status: "success", ...result });
+          return Response.json({ ok: true, ...result });
         } catch (error) {
           console.error("[legacy Monetbil webhook]", error);
           return Response.json({ ok: false, error: "traitement de notification impossible" }, { status: 500 });
