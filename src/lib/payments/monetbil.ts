@@ -1,7 +1,9 @@
-import { createHash } from "node:crypto";
+import { createHash, timingSafeEqual } from "node:crypto";
 import type { CheckoutInput, CheckoutResult, PaymentProvider, VerificationResult } from "./provider";
 
-type MonetbilResponse = { success?: boolean; payment_url?: string };
+type MonetbilResponse = { success?: boolean; payment_url?: string; message?: string };
+
+type MonetbilNotification = Record<string, string>;
 
 function readConfig() {
   const serviceKey = process.env["MONETBIL_SERVICE_KEY"]?.trim();
@@ -15,17 +17,27 @@ export function isMonetbilConfigured() {
   return readConfig() !== null;
 }
 
-export function verifyMonetbilSignature(params: Record<string, string>) {
+/**
+ * Monetbil notifications are signed with MD5 using the service secret and
+ * notification values. We keep this verification server-side only.
+ */
+export function verifyMonetbilSignature(params: MonetbilNotification) {
   const secret = readConfig()?.serviceSecret;
-  if (!secret) return true;
-  const provided = params.sign;
-  if (!provided) return false;
+  if (!secret) return false;
+
+  const provided = params.sign?.trim().toLowerCase();
+  if (!provided || !/^[a-f0-9]{32}$/.test(provided)) return false;
+
   const values = Object.entries(params)
     .filter(([key]) => key !== "sign")
     .sort(([a], [b]) => a.localeCompare(b))
-    .map(([, value]) => value);
-  const expected = createHash("md5").update(secret + values.join(""), "utf8").digest("hex");
-  return provided.toLowerCase() === expected.toLowerCase();
+    .map(([, value]) => value)
+    .join("");
+  const expected = createHash("md5").update(secret + values, "utf8").digest("hex");
+
+  const a = Buffer.from(provided, "utf8");
+  const b = Buffer.from(expected, "utf8");
+  return a.length === b.length && timingSafeEqual(a, b);
 }
 
 export const monetbilProvider: PaymentProvider = {
@@ -35,7 +47,10 @@ export const monetbilProvider: PaymentProvider = {
   async createCheckout(input: CheckoutInput): Promise<CheckoutResult> {
     const config = readConfig();
     if (!config) {
-      return { status: "unavailable", message: "Monetbil n'est pas configuré (MONETBIL_SERVICE_KEY et APP_URL)." };
+      return {
+        status: "unavailable",
+        message: "Monetbil n'est pas configuré (MONETBIL_SERVICE_KEY, MONETBIL_SERVICE_SECRET et APP_URL).",
+      };
     }
 
     const body = new URLSearchParams();
@@ -47,23 +62,37 @@ export const monetbilProvider: PaymentProvider = {
     body.set("payment_ref", input.reference);
     body.set("user", input.candidateId);
     body.set("return_url", `${config.appUrl}/payment/confirmation?transaction_id=${encodeURIComponent(input.reference)}`);
-    body.set("notify_url", `${config.appUrl}/api/payunit/webhook`);
+    body.set("notify_url", `${config.appUrl}/api/monetbil/webhook`);
 
-    const response = await fetch(`https://api.monetbil.com/widget/v2.1/${encodeURIComponent(config.serviceKey)}`, {
-      method: "POST",
-      headers: { "Content-Type": "application/x-www-form-urlencoded" },
-      body,
-    });
+    const response = await fetch(
+      `https://api.monetbil.com/widget/v2.1/${encodeURIComponent(config.serviceKey)}`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        body,
+      },
+    );
     const payload = (await response.json().catch(() => ({}))) as MonetbilResponse;
 
     if (!response.ok || !payload.success || !payload.payment_url) {
-      return { status: "unavailable", message: `Monetbil a refusé l'initialisation (HTTP ${response.status}).` };
+      return {
+        status: "unavailable",
+        message: payload.message || `Monetbil a refusé l'initialisation (HTTP ${response.status}).`,
+      };
     }
 
-    return { status: "redirect", redirectUrl: payload.payment_url, message: "Redirection vers Monetbil pour finaliser le paiement." };
+    return {
+      status: "redirect",
+      redirectUrl: payload.payment_url,
+      message: "Redirection vers Monetbil pour finaliser le paiement.",
+    };
   },
 
   async verifyPayment(): Promise<VerificationResult> {
-    return { status: "pending", paymentMethod: "monetbil", message: "Paiement en attente de la notification sécurisée de Monetbil." };
+    return {
+      status: "pending",
+      paymentMethod: "monetbil",
+      message: "Paiement en attente de la notification sécurisée de Monetbil.",
+    };
   },
 };
