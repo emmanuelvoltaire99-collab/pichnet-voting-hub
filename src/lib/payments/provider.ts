@@ -4,6 +4,7 @@
  */
 
 import { isMonetbilConfigured, monetbilProvider } from "./monetbil";
+import { isPayUnitConfigured, payunitProvider } from "./payunit";
 
 export type CheckoutInput = {
   reference: string;
@@ -51,6 +52,7 @@ const unconfiguredProvider: PaymentProvider = {
 };
 
 export function getPaymentProvider(): PaymentProvider {
+  if (isPayUnitConfigured()) return payunitProvider;
   if (isMonetbilConfigured()) return monetbilProvider;
   return unconfiguredProvider;
 }
