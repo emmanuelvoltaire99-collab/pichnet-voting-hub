@@ -26,6 +26,14 @@ export type VotePackage = {
   is_active: boolean;
 };
 
+const toDbCategory = (category: Category) => category.toLowerCase();
+
+const normalize = (rows: unknown[]): Candidate[] =>
+  (rows as Candidate[]).map((row) => ({
+    ...row,
+    category: String(row.category).toUpperCase() as Category,
+  }));
+
 export const candidatesQuery = (category?: Category) =>
   queryOptions({
     queryKey: ["candidates", category ?? "all"],
@@ -34,10 +42,10 @@ export const candidatesQuery = (category?: Category) =>
         .from("candidates")
         .select("*")
         .order("candidate_number", { ascending: true });
-      if (category) query = query.eq("category", category);
+      if (category) query = query.eq("category", toDbCategory(category));
       const { data, error } = await query;
       if (error) throw new Error(error.message);
-      return (data ?? []) as Candidate[];
+      return normalize(data ?? []);
     },
   });
 
@@ -47,7 +55,7 @@ export const candidateQuery = (id: string) =>
     queryFn: async (): Promise<Candidate | null> => {
       const { data, error } = await supabase.from("candidates").select("*").eq("id", id).maybeSingle();
       if (error) throw new Error(error.message);
-      return (data as Candidate) ?? null;
+      return data ? normalize([data])[0]! : null;
     },
   });
 
@@ -58,12 +66,12 @@ export const rankingQuery = (category: Category) =>
       const { data, error } = await supabase
         .from("candidates")
         .select("*")
-        .eq("category", category)
+        .eq("category", toDbCategory(category))
         .eq("is_active", true)
         .order("votes_count", { ascending: false })
         .order("candidate_number", { ascending: true });
       if (error) throw new Error(error.message);
-      return (data ?? []) as Candidate[];
+      return normalize(data ?? []);
     },
   });
 

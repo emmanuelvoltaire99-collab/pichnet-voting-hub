@@ -17,6 +17,7 @@ import { Route as MissRouteImport } from './routes/miss'
 import { Route as VoteRouteImport } from './routes/vote'
 import { Route as CandidatIdRouteImport } from './routes/candidat.$id'
 import { Route as PaymentConfirmationRouteImport } from './routes/payment.confirmation'
+import { Route as ApiMonetbilWebhookRouteImport } from './routes/api/monetbil.webhook'
 import { Route as ApiPayunitWebhookRouteImport } from './routes/api/payunit.webhook'
 
 const IndexRoute = IndexRouteImport.update({
@@ -59,6 +60,11 @@ const PaymentConfirmationRoute = PaymentConfirmationRouteImport.update({
   path: '/payment/confirmation',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiMonetbilWebhookRoute = ApiMonetbilWebhookRouteImport.update({
+  id: '/api/monetbil/webhook',
+  path: '/api/monetbil/webhook',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiPayunitWebhookRoute = ApiPayunitWebhookRouteImport.update({
   id: '/api/payunit/webhook',
   path: '/api/payunit/webhook',
@@ -74,6 +80,7 @@ export interface FileRoutesByFullPath {
   '/vote': typeof VoteRoute
   '/candidat/$id': typeof CandidatIdRoute
   '/payment/confirmation': typeof PaymentConfirmationRoute
+  '/api/monetbil/webhook': typeof ApiMonetbilWebhookRoute
   '/api/payunit/webhook': typeof ApiPayunitWebhookRoute
 }
 export interface FileRoutesByTo {
@@ -85,6 +92,7 @@ export interface FileRoutesByTo {
   '/vote': typeof VoteRoute
   '/candidat/$id': typeof CandidatIdRoute
   '/payment/confirmation': typeof PaymentConfirmationRoute
+  '/api/monetbil/webhook': typeof ApiMonetbilWebhookRoute
   '/api/payunit/webhook': typeof ApiPayunitWebhookRoute
 }
 export interface FileRoutesById {
@@ -97,6 +105,7 @@ export interface FileRoutesById {
   '/vote': typeof VoteRoute
   '/candidat/$id': typeof CandidatIdRoute
   '/payment/confirmation': typeof PaymentConfirmationRoute
+  '/api/monetbil/webhook': typeof ApiMonetbilWebhookRoute
   '/api/payunit/webhook': typeof ApiPayunitWebhookRoute
 }
 export interface FileRouteTypes {
@@ -110,6 +119,7 @@ export interface FileRouteTypes {
     | '/vote'
     | '/candidat/$id'
     | '/payment/confirmation'
+    | '/api/monetbil/webhook'
     | '/api/payunit/webhook'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -121,6 +131,7 @@ export interface FileRouteTypes {
     | '/vote'
     | '/candidat/$id'
     | '/payment/confirmation'
+    | '/api/monetbil/webhook'
     | '/api/payunit/webhook'
   id:
     | '__root__'
@@ -132,6 +143,7 @@ export interface FileRouteTypes {
     | '/vote'
     | '/candidat/$id'
     | '/payment/confirmation'
+    | '/api/monetbil/webhook'
     | '/api/payunit/webhook'
   fileRoutesById: FileRoutesById
 }
@@ -144,6 +156,7 @@ export interface RootRouteChildren {
   VoteRoute: typeof VoteRoute
   CandidatIdRoute: typeof CandidatIdRoute
   PaymentConfirmationRoute: typeof PaymentConfirmationRoute
+  ApiMonetbilWebhookRoute: typeof ApiMonetbilWebhookRoute
   ApiPayunitWebhookRoute: typeof ApiPayunitWebhookRoute
 }
 
@@ -205,6 +218,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PaymentConfirmationRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/monetbil/webhook': {
+      id: '/api/monetbil/webhook'
+      path: '/api/monetbil/webhook'
+      fullPath: '/api/monetbil/webhook'
+      preLoaderRoute: typeof ApiMonetbilWebhookRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/payunit/webhook': {
       id: '/api/payunit/webhook'
       path: '/api/payunit/webhook'
@@ -224,6 +244,7 @@ const rootRouteChildren: RootRouteChildren = {
   VoteRoute: VoteRoute,
   CandidatIdRoute: CandidatIdRoute,
   PaymentConfirmationRoute: PaymentConfirmationRoute,
+  ApiMonetbilWebhookRoute: ApiMonetbilWebhookRoute,
   ApiPayunitWebhookRoute: ApiPayunitWebhookRoute,
 }
 export const routeTree = rootRouteImport
