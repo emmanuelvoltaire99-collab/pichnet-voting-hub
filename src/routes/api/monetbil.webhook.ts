@@ -52,15 +52,12 @@ export const Route = createFileRoute("/api/monetbil/webhook")({
             return Response.json({ ok: false, error: "montant ou devise incohérent" }, { status: 400 });
           }
 
-          // The database function performs the entire credit operation atomically
-          // and is protected against duplicate webhook delivery.
-          const { data: result, error: rpcError } = await supabaseAdmin.rpc("settle_paid_vote", {
-            p_payment_id: payment.id,
-          });
+          // Signature and amount are verified above, so the credit is applied
+          // once; the settle helper is idempotent for duplicate deliveries.
+          const { settlePaymentById } = await import("@/lib/payments/settle.server");
+          const result = await settlePaymentById(payment.id, { forceManual: true });
 
-          if (rpcError) throw new Error(rpcError.message);
-
-          return Response.json({ ok: true, status: "success", ...(result ?? {}) });
+          return Response.json({ ok: true, status: "success", ...result });
         } catch (error) {
           console.error("[monetbil webhook]", error);
           return Response.json({ ok: false, error: (error as Error).message }, { status: 500 });

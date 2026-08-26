@@ -48,10 +48,10 @@ export const Route = createFileRoute("/api/payunit/webhook")({
             return Response.json({ ok: false, error: "montant ou devise incohérent" }, { status: 400 });
           }
 
-          const { data, error: rpcError } = await supabaseAdmin.rpc("settle_paid_vote", { p_payment_id: payment.id });
-          if (rpcError) throw new Error(rpcError.message);
+          const { settlePaymentById } = await import("@/lib/payments/settle.server");
+          const result = await settlePaymentById(payment.id, { forceManual: true });
 
-          return Response.json({ ok: true, status: "success", ...(data ?? {}) });
+          return Response.json({ ok: true, status: "success", ...result });
         } catch (error) {
           console.error("[legacy Monetbil webhook]", error);
           return Response.json({ ok: false, error: "traitement de notification impossible" }, { status: 500 });
