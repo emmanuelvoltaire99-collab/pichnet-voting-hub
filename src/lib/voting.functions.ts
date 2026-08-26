@@ -44,10 +44,6 @@ export const createVoteIntent = createServerFn({ method: "POST" })
       packageId: pack.id,
     });
 
-    if (checkout.status !== "redirect" || !checkout.redirectUrl) {
-      throw new Error(checkout.message);
-    }
-
     const { data: payment, error } = await supabaseAdmin
       .from("payments")
       .insert({
@@ -56,7 +52,7 @@ export const createVoteIntent = createServerFn({ method: "POST" })
         package_id: pack.id,
         amount: pack.price,
         currency: pack.currency,
-        payment_method: provider.id,
+        payment_method: provider.id === "unconfigured" ? null : provider.id,
         transaction_reference: reference,
         status: toDbPaymentStatus("pending"),
       })
