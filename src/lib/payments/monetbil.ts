@@ -1,20 +1,31 @@
+import { createHash } from "node:crypto";
 import type { CheckoutInput, CheckoutResult, PaymentProvider, VerificationResult } from "./provider";
 
-type MonetbilResponse = {
-  success?: boolean;
-  payment_url?: string;
-  message?: string;
-};
+type MonetbilResponse = { success?: boolean; payment_url?: string };
 
 function readConfig() {
   const serviceKey = process.env["MONETBIL_SERVICE_KEY"]?.trim();
+  const serviceSecret = process.env["MONETBIL_SERVICE_SECRET"]?.trim();
   const appUrl = process.env["APP_URL"]?.trim();
   if (!serviceKey || !appUrl) return null;
-  return { serviceKey, appUrl: appUrl.replace(/\/$/, "") };
+  return { serviceKey, serviceSecret, appUrl: appUrl.replace(/\/$/, "") };
 }
 
 export function isMonetbilConfigured() {
   return readConfig() !== null;
+}
+
+export function verifyMonetbilSignature(params: Record<string, string>) {
+  const secret = readConfig()?.serviceSecret;
+  if (!secret) return true;
+  const provided = params.sign;
+  if (!provided) return false;
+  const values = Object.entries(params)
+    .filter(([key]) => key !== "sign")
+    .sort(([a], [b]) => a.localeCompare(b))
+    .map(([, value]) => value);
+  const expected = createHash("md5").update(secret + values.join(""), "utf8").digest("hex");
+  return provided.toLowerCase() === expected.toLowerCase();
 }
 
 export const monetbilProvider: PaymentProvider = {
@@ -24,10 +35,7 @@ export const monetbilProvider: PaymentProvider = {
   async createCheckout(input: CheckoutInput): Promise<CheckoutResult> {
     const config = readConfig();
     if (!config) {
-      return {
-        status: "unavailable",
-        message: "Monetbil n'est pas configuré (MONETBIL_SERVICE_KEY et APP_URL).",
-      };
+      return { status: "unavailable", message: "Monetbil n'est pas configuré (MONETBIL_SERVICE_KEY et APP_URL)." };
     }
 
     const body = new URLSearchParams();
@@ -41,35 +49,21 @@ export const monetbilProvider: PaymentProvider = {
     body.set("return_url", `${config.appUrl}/payment/confirmation?transaction_id=${encodeURIComponent(input.reference)}`);
     body.set("notify_url", `${config.appUrl}/api/payunit/webhook`);
 
-    const response = await fetch(
-      `https://api.monetbil.com/widget/v2.1/${encodeURIComponent(config.serviceKey)}`,
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/x-www-form-urlencoded" },
-        body,
-      },
-    );
-
+    const response = await fetch(`https://api.monetbil.com/widget/v2.1/${encodeURIComponent(config.serviceKey)}`, {
+      method: "POST",
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      body,
+    });
     const payload = (await response.json().catch(() => ({}))) as MonetbilResponse;
+
     if (!response.ok || !payload.success || !payload.payment_url) {
-      return {
-        status: "unavailable",
-        message: payload.message || `Monetbil a refusé l'initialisation (HTTP ${response.status}).`,
-      };
+      return { status: "unavailable", message: `Monetbil a refusé l'initialisation (HTTP ${response.status}).` };
     }
 
-    return {
-      status: "redirect",
-      redirectUrl: payload.payment_url,
-      message: "Redirection vers Monetbil pour finaliser le paiement.",
-    };
+    return { status: "redirect", redirectUrl: payload.payment_url, message: "Redirection vers Monetbil pour finaliser le paiement." };
   },
 
   async verifyPayment(): Promise<VerificationResult> {
-    return {
-      status: "pending",
-      paymentMethod: "monetbil",
-      message: "Paiement en attente de la notification sécurisée de Monetbil.",
-    };
+    return { status: "pending", paymentMethod: "monetbil", message: "Paiement en attente de la notification sécurisée de Monetbil." };
   },
 };
