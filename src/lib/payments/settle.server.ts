@@ -1,5 +1,6 @@
 import type { Database } from "@/integrations/supabase/types";
 import { getPaymentProvider } from "@/lib/payments/provider";
+import { fromDbPaymentStatus, toDbPaymentStatus } from "@/lib/payments/status";
 
 type PaymentRow = Database["public"]["Tables"]["payments"]["Row"];
 type AdminClient = typeof import("@/integrations/supabase/client.server").supabaseAdmin;
@@ -19,7 +20,8 @@ async function creditVotesIfPaid(
   >,
   options: { forceManual?: boolean } = {},
 ): Promise<SettleResult> {
-  if (payment.status === "paid") {
+  const currentStatus = fromDbPaymentStatus(String(payment.status));
+  if (currentStatus === "paid") {
     return { status: "paid", message: "Paiement déjà validé.", votesAdded: false };
   }
 
@@ -35,7 +37,10 @@ async function creditVotesIfPaid(
   const confirmed = verification.status === "paid" || options.forceManual === true;
   if (!confirmed) {
     if (verification.status === "failed") {
-      await supabaseAdmin.from("payments").update({ status: "failed" }).eq("id", payment.id);
+      await supabaseAdmin
+        .from("payments")
+        .update({ status: toDbPaymentStatus("failed") })
+        .eq("id", payment.id);
     }
     return { status: verification.status, message: verification.message, votesAdded: false };
   }
@@ -47,7 +52,10 @@ async function creditVotesIfPaid(
     .maybeSingle();
 
   if (existingVote) {
-    await supabaseAdmin.from("payments").update({ status: "paid" }).eq("id", payment.id);
+    await supabaseAdmin
+      .from("payments")
+      .update({ status: toDbPaymentStatus("paid") })
+      .eq("id", payment.id);
     return {
       status: "paid",
       message: "Paiement déjà crédité.",
@@ -74,7 +82,7 @@ async function creditVotesIfPaid(
   const { error: updateError } = await supabaseAdmin
     .from("payments")
     .update({
-      status: "paid",
+      status: toDbPaymentStatus("paid"),
       ...(verification.paymentMethod ? { payment_method: verification.paymentMethod } : {}),
     })
     .eq("id", payment.id);

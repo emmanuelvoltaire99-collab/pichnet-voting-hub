@@ -1,6 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { buildReference, getPaymentProvider } from "@/lib/payments/provider";
+import { toDbPaymentStatus } from "@/lib/payments/status";
 
 const REFERENCE_PATTERN = /^PICHNET[A-Z0-9]{6,50}$/;
 
@@ -43,6 +44,10 @@ export const createVoteIntent = createServerFn({ method: "POST" })
       packageId: pack.id,
     });
 
+    if (checkout.status !== "redirect" || !checkout.redirectUrl) {
+      throw new Error(checkout.message);
+    }
+
     const { data: payment, error } = await supabaseAdmin
       .from("payments")
       .insert({
@@ -53,7 +58,7 @@ export const createVoteIntent = createServerFn({ method: "POST" })
         currency: pack.currency,
         payment_method: provider.id,
         transaction_reference: reference,
-        status: "pending",
+        status: toDbPaymentStatus("pending"),
       })
       .select("id, transaction_reference, amount, currency, status")
       .single();

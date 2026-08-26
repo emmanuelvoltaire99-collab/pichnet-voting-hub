@@ -1,9 +1,9 @@
-export const CATEGORIES = ["miss", "master"] as const;
+export const CATEGORIES = ["MISS", "MASTER"] as const;
 export type Category = (typeof CATEGORIES)[number];
 
 export const CATEGORY_LABEL: Record<Category, string> = {
-  miss: "Miss",
-  master: "Mister",
+  MISS: "Miss",
+  MASTER: "Mister",
 };
 
 export function formatPrice(amount: number, currency = "XAF") {

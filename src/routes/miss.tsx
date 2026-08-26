@@ -15,7 +15,7 @@ export const Route = createFileRoute("/miss")({
   }),
   component: () => (
     <CandidateGrid
-      category="miss"
+      category="MISS"
       title="Candidates MISS 2026"
       subtitle="Élégance, engagement et culture camerounaise. Soutenez votre candidate favorite."
     />

@@ -91,8 +91,8 @@ function Ranking() {
         </p>
       </header>
       <div className="grid gap-6 md:grid-cols-2">
-        <RankingColumn category="miss" title="MISS" />
-        <RankingColumn category="master" title="MISTER" />
+        <RankingColumn category="MISS" title="MISS" />
+        <RankingColumn category="MASTER" title="MISTER" />
       </div>
     </div>
   );

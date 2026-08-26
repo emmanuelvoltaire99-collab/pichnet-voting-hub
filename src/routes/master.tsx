@@ -15,7 +15,7 @@ export const Route = createFileRoute("/master")({
   }),
   component: () => (
     <CandidateGrid
-      category="master"
+      category="MASTER"
       title="Candidats MISTER 2026"
       subtitle="Au-delà de la beauté : une jeunesse qui inspire, s'engage et transforme."
     />
